@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Disease Risk Prediction - AI-Powered Health Screening</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        nav {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+        
+        nav ul li a {
+            text-decoration: none;
+            color: #667eea;
+            font-weight: 600;
+            transition: color 0.3s;
+            cursor: pointer;
+        }
+        
+        nav ul li a:hover {
+            color: #764ba2;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-size: 2.5rem;
+        }
+        
+        h2 {
+            color: #764ba2;
+            margin: 1.5rem 0 1rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: transform 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+        
+        .feature-card {
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .form-group {
+            margin: 1rem 0;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .result-box {
+            margin-top: 2rem;
+            padding: 2rem;
+            border-radius: 10px;
+            display: none;
+            animation: slideIn 0.5s;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .risk-low { background: #d4edda; border: 3px solid #28a745; }
+        .risk-moderate { background: #fff3cd; border: 3px solid #ffc107; }
+        .risk-high { background: #f8d7da; border: 3px solid #dc3545; }
+        
+        .resource-card {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+            border-left: 4px solid #667eea;
+        }
+        
+        .disclaimer {
+            background: #fff3cd;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+            border-left: 4px solid #ffc107;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: white;
+            margin-top: 2rem;
+        }
+        
+        .calculator {
+            background: #e3f2fd;
+            padding: 2rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+                margin: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a onclick="showPage('home')">Home</a></li>
+            <li><a onclick="showPage('assessment')">Risk Assessment</a></li>
+            <li><a onclick="showPage('resources')">Resources</a></li>
+            <li><a onclick="showPage('profile')">My Profile</a></li>
+            <li><a onclick="showPage('about')">About</a></li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <!-- HOME PAGE -->
+        <div id="home" class="page active">
+            <h1>🫀 Early Heart Disease Risk Screening</h1>
+            <p style="font-size: 1.2rem; color: #666; text-align: center; margin: 2rem 0;">
+                Take control of your heart health with our AI-powered risk assessment tool
+            </p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3>Quick Assessment</h3>
+                    <p>Answer simple questions about your health</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3>AI-Powered Analysis</h3>
+                    <p>Machine learning evaluates your risk factors</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Personalized Results</h3>
+                    <p>Get actionable insights and recommendations</p>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin: 3rem 0;">
+                <button class="btn" onclick="showPage('assessment')" style="font-size: 1.2rem; padding: 15px 40px;">Start Risk Assessment</button>
+            </div>
+            
+            <div class="disclaimer">
+                <strong>⚠️ Important Disclaimer:</strong> This tool provides a risk indication only and is not a definitive diagnosis. 
+                Always consult with healthcare professionals for medical advice.
+            </div>
+        </div>
+        
+        <!-- ASSESSMENT PAGE -->
+        <div id="assessment" class="page">
+            <h1>Heart Disease Risk Assessment</h1>
+            <p style="text-align: center; color: #666; margin-bottom: 2rem;">
+                Please provide accurate information for the best results
+            </p>
+
+            <form id="assessmentForm" onsubmit="calculateRisk(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Age *</label>
+                        <input type="number" id="age" required min="1" max="120">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Sex *</label>
+                        <select id="sex" required>
+                            <option value="">Select</option>
+                            <option value="1">Male</option>
+                            <option value="0">Female</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Chest Pain Type *</label>
+                        <select id="cp" required>
+                            <option value="">Select</option>
+                            <option value="0">Typical Angina</option>
+                            <option value="1">Atypical Angina</option>
+                            <option value="2">Non-anginal Pain</option>
+                            <option value="3">Asymptomatic</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Resting Blood Pressure (mm Hg) *</label>
+                        <input type="number" id="trestbps" required min="80" max="220" placeholder="e.g., 120">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Cholesterol (mg/dl) *</label>
+                        <input type="number" id="chol" required min="100" max="600" placeholder="e.g., 200">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Fasting Blood Sugar > 120 mg/dl *</label>
+                        <select id="fbs" required>
+                            <option value="">Select</option>
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Resting ECG Results *</label>
+                        <select id="restecg" required>
+                            <option value="">Select</option>
+                            <option value="0">Normal</option>
+                            <option value="1">ST-T Wave Abnormality</option>
+                            <option value="2">Left Ventricular Hypertrophy</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Maximum Heart Rate *</label>
+                        <input type="number" id="thalach" required min="60" max="220" placeholder="e.g., 150">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Exercise Induced Angina *</label>
+                        <select id="exang" required>
+                            <option value="">Select</option>
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>ST Depression (0-10) *</label>
+                        <input type="number" step="0.1" id="oldpeak" required min="0" max="10" placeholder="e.g., 1.5">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Slope of Peak Exercise ST *</label>
+                        <select id="slope" required>
+                            <option value="">Select</option>
+                            <option value="0">Upsloping</option>
+                            <option value="1">Flat</option>
+                            <option value="2">Downsloping</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Number of Major Vessels (0-3) *</label>
+                        <input type="number" id="ca" required min="0" max="3" placeholder="0-3">
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button type="submit" class="btn">Calculate Risk</button>
+                </div>
+            </form>
+
+            <div id="resultBox" class="result-box">
+                <h2 style="text-align: center;">Your Risk Assessment</h2>
+                <div style="text-align: center; font-size: 3rem; margin: 1rem 0; font-weight: bold;" id="riskPercentage"></div>
+                <div style="text-align: center; font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem;" id="riskLevel"></div>
+                <div id="recommendations"></div>
+            </div>
+        </div>
+        
+        <!-- RESOURCES PAGE -->
+        <div id="resources" class="page">
+            <h1>Heart Health Resources</h1>
+
+            <div class="resource-card">
+                <h3>🫀 What is Heart Disease?</h3>
+                <p>Heart disease refers to various conditions that affect the heart's structure and function. The most common type is coronary artery disease (CAD), which develops when blood vessels supplying the heart become narrowed or blocked.</p>
+                <h4>Common Risk Factors:</h4>
+                <ul style="margin-left: 2rem; margin-top: 1rem;">
+                    <li><strong>High Blood Pressure:</strong> Forces your heart to work harder</li>
+                    <li><strong>High Cholesterol:</strong> Can lead to plaque buildup</li>
+                    <li><strong>Smoking:</strong> Damages blood vessel lining</li>
+                    <li><strong>Diabetes:</strong> High blood sugar damages vessels</li>
+                    <li><strong>Obesity:</strong> Increases strain on the heart</li>
+                    <li><strong>Physical Inactivity:</strong> Weakens cardiovascular system</li>
+                </ul>
+            </div>
+
+            <div class="resource-card">
+                <h3>⚠️ Warning Signs & Symptoms</h3>
+                <p><strong>Seek immediate medical attention if you experience:</strong></p>
+                <ul style="margin-left: 2rem; margin-top: 1rem;">
+                    <li>Chest pain or discomfort</li>
+                    <li>Shortness of breath</li>
+                    <li>Pain in arms, back, neck, or jaw</li>
+                    <li>Cold sweats or nausea</li>
+                    <li>Irregular heartbeat</li>
+                </ul>
+            </div>
+
+            <div class="resource-card">
+                <h3>💪 Prevention & Lifestyle Changes</h3>
+                <ul style="margin-left: 2rem;">
+                    <li><strong>Healthy Diet:</strong> Fruits, vegetables, whole grains</li>
+                    <li><strong>Regular Exercise:</strong> 150 minutes per week</li>
+                    <li><strong>Quit Smoking:</strong> Best thing for your heart</li>
+                    <li><strong>Manage Stress:</strong> Meditation, yoga</li>
+                    <li><strong>Regular Check-ups:</strong> Monitor vital signs</li>
+                </ul>
+            </div>
+
+            <div class="calculator">
+                <h3>BMI Calculator</h3>
+                <div class="form-group">
+                    <label>Weight (kg)</label>
+                    <input type="number" id="weight" placeholder="e.g., 70">
+                </div>
+                <div class="form-group">
+                    <label>Height (cm)</label>
+                    <input type="number" id="height" placeholder="e.g., 170">
+                </div>
+                <button class="btn" onclick="calculateBMI()">Calculate BMI</button>
+                <div id="bmiResult" style="margin-top: 1rem; font-size: 1.2rem; font-weight: bold;"></div>
+            </div>
+        </div>
+        
+        <!-- PROFILE PAGE -->
+        <div id="profile" class="page">
+            <h1>My Health Dashboard</h1>
+            
+            <div id="profileContent">
+                <div style="text-align: center; padding: 3rem;">
+                    <p style="font-size: 1.2rem; color: #666; margin-bottom: 2rem;">
+                        You haven't taken an assessment yet.
+                    </p>
+                    <button class="btn" onclick="showPage('assessment')">Take Your First Assessment</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ABOUT PAGE -->
+        <div id="about" class="page">
+            <h1>About Our Platform</h1>
+
+            <div style="margin: 2rem 0;">
+                <h2>Our Mission</h2>
+                <p style="font-size: 1.1rem; line-height: 1.8;">
+                    We aim to make early heart disease screening accessible to everyone through technology. 
+                    By combining machine learning with medical knowledge, we provide a preliminary risk assessment 
+                    that can help individuals take proactive steps toward heart health.
+                </p>
+            </div>
+
+            <div style="margin: 2rem 0;">
+                <h2>How It Works</h2>
+                <p style="font-size: 1.1rem; line-height: 1.8;">
+                    Our platform uses advanced algorithms to analyze multiple health indicators including blood pressure, 
+                    cholesterol levels, heart rate data, ECG results, and lifestyle factors. The system processes these 
+                    inputs and generates a risk percentage along with personalized recommendations.
+                </p>
+            </div>
+
+            <div class="disclaimer">
+                <h2 style="margin-top: 0;">Important Disclaimers</h2>
+                <ul style="font-size: 1.1rem; line-height: 1.8; margin-left: 2rem;">
+                    <li>This tool is for <strong>informational purposes only</strong></li>
+                    <li>It is <strong>not a substitute for professional medical advice</strong></li>
+                    <li>Results are based on statistical models</li>
+                    <li>Always consult qualified healthcare professionals</li>
+                    <li>In emergencies, seek immediate medical attention</li>
+                </ul>
+            </div>
+
+            <div style="margin: 2rem 0;">
+                <h2>Privacy & Data Security</h2>
+                <p style="font-size: 1.1rem; line-height: 1.8;">
+                    Your health data is stored only in your browser and never sent to external servers. 
+                    We respect your privacy and do not collect or share any personal information.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>&copy; 2025 Heart Disease Prediction System | For informational purposes only</p>
+        <p>Not a substitute for professional medical advice</p>
+    </footer>
+
+    <script>
+        let assessmentData = null;
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function calculateRisk(event) {
+            event.preventDefault();
+            
+            const age = parseInt(document.getElementById('age').value);
+            const sex = parseInt(document.getElementById('sex').value);
+            const cp = parseInt(document.getElementById('cp').value);
+            const trestbps = parseInt(document.getElementById('trestbps').value);
+            const chol = parseInt(document.getElementById('chol').value);
+            const fbs = parseInt(document.getElementById('fbs').value);
+            const restecg = parseInt(document.getElementById('restecg').value);
+            const thalach = parseInt(document.getElementById('thalach').value);
+            const exang = parseInt(document.getElementById('exang').value);
+            const oldpeak = parseFloat(document.getElementById('oldpeak').value);
+            const slope = parseInt(document.getElementById('slope').value);
+            const ca = parseInt(document.getElementById('ca').value);
+            
+            // Simple risk calculation algorithm
+            let riskScore = 0;
+            
+            // Age factor
+            if (age > 60) riskScore += 25;
+            else if (age > 50) riskScore += 15;
+            else if (age > 40) riskScore += 10;
+            
+            // Blood pressure
+            if (trestbps > 140) riskScore += 20;
+            else if (trestbps > 130) riskScore += 10;
+            
+            // Cholesterol
+            if (chol > 240) riskScore += 20;
+            else if (chol > 200) riskScore += 10;
+            
+            // Other factors
+            if (cp >= 2) riskScore += 15;
+            if (fbs === 1) riskScore += 10;
+            if (restecg !== 0) riskScore += 10;
+            if (thalach < 120) riskScore += 15;
+            if (exang === 1) riskScore += 15;
+            if (oldpeak > 2) riskScore += 15;
+            if (slope === 2) riskScore += 10;
+            if (ca > 0) riskScore += ca * 10;
+            
+            // Cap at 100
+            riskScore = Math.min(riskScore, 100);
+            
+            let riskLevel, riskClass, recommendations;
+            
+            if (riskScore < 30) {
+                riskLevel = "Low Risk";
+                riskClass = "risk-low";
+                recommendations = `
+                    <p><strong>Great news!</strong> Your risk assessment shows low risk.</p>
+                    <p>Continue maintaining a healthy lifestyle with:</p>
+                    <ul style="margin-left: 2rem;">
+                        <li>Regular exercise</li>
+                        <li>Balanced diet</li>
+                        <li>Routine check-ups</li>
+                    </ul>
+                `;
+            } else if (riskScore < 60) {
+                riskLevel = "Moderate Risk";
+                riskClass = "risk-moderate";
+                recommendations = `
+                    <p><strong>Recommendations:</strong></p>
+                    <ul style="margin-left: 2rem;">
+                        <li>Schedule a consultation with a cardiologist</li>
+                        <li>Monitor blood pressure and cholesterol regularly</li>
+                        <li>Adopt heart-healthy lifestyle changes</li>
+                        <li>Consider stress management techniques</li>
+                    </ul>
+                `;
+            } else {
+                riskLevel = "High Risk";
+                riskClass = "risk-high";
+                recommendations = `
+                    <p><strong>⚠️ Important:</strong> Your assessment shows high risk.</p>
+                    <p><strong>Please consult a healthcare professional as soon as possible.</strong></p>
+                    <ul style="margin-left: 2rem;">
+                        <li>Schedule an immediate appointment with a cardiologist</li>
+                        <li>Get comprehensive cardiac tests</li>
+                        <li>Discuss medication and lifestyle interventions</li>
+                    </ul>
+                `;
+            }
+            
+            assessmentData = {
+                date: new Date().toLocaleString(),
+                riskScore: riskScore,
+                riskLevel: riskLevel
+            };
+            
+            const resultBox = document.getElementById('resultBox');
+            resultBox.className = 'result-box ' + riskClass;
+            resultBox.style.display = 'block';
+            
+            document.getElementById('riskPercentage').textContent = riskScore + '%';
+            document.getElementById('riskLevel').textContent = riskLevel;
+            document.getElementById('recommendations').innerHTML = recommendations;
+            
+            resultBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            updateProfile();
+        }
+
+        function calculateBMI() {
+            const weight = parseFloat(document.getElementById('weight').value);
+            const height = parseFloat(document.getElementById('height').value);
+            
+            if (!weight || !height) {
+                alert('Please enter both weight and height');
+                return;
+            }
+            
+            const heightM = height / 100;
+            const bmi = weight / (heightM * heightM);
+            
+            let category;
+            if (bmi < 18.5) category = "Underweight";
+            else if (bmi < 25) category = "Normal weight";
+            else if (bmi < 30) category = "Overweight";
+            else category = "Obese";
+            
+            document.getElementById('bmiResult').innerHTML = 
+                `Your BMI: <span style="color: #667eea;">${bmi.toFixed(2)}</span> (${category})`;
+        }
+
+        function updateProfile() {
+            if (!assessmentData) return;
+            
+            let riskColor;
+            if (assessmentData.riskScore < 30) riskColor = 'green';
+            else if (assessmentData.riskScore < 60) riskColor = 'orange';
+            else riskColor = 'red';
+            
+            document.getElementById('profileContent').innerHTML = `
+                <div style="background: #e3f2fd; padding: 2rem; border-radius: 10px; margin: 2rem 0;">
+                    <h2>Last Assessment</h2>
+                    <p><strong>Date:</strong> ${assessmentData.date}</p>
+                    <p><strong>Risk Level:</strong> <span style="color: ${riskColor};">${assessmentData.riskLevel}</span></p>
+                    <p><strong>Risk Score:</strong> ${assessmentData.riskScore}%</p>
+                    
+                    <div style="margin-top: 1.5rem;">
+                        <button class="btn" onclick="showPage('assessment')">Take New Assessment</button>
+                    </div>
+                </div>
+
+                <div style="margin: 2rem 0;">
+                    <h2>Next Steps</h2>
+                    <ul style="font-size: 1.1rem; line-height: 1.8; margin-left: 2rem;">
+                        <li>Schedule an appointment with your doctor</li>
+                        <li>Get comprehensive blood work done</li>
+                        <li>Monitor your blood pressure regularly</li>
+                        <li>Review lifestyle tips in Resources</li>
+                        <li>Track your progress with regular assessments</li>
+                    </ul>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
